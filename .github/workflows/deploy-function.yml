@@ -3,7 +3,7 @@ name: Deploy Azure Function App
 on:
   push:
     branches:
-      - main 
+      - main
 
 jobs:
   build-and-deploy:
@@ -20,12 +20,11 @@ jobs:
 
       - name: Install dependencies
         run: |
-          cd api
           pip install -r requirements.txt --target=".python_packages/lib/site-packages"
 
       - name: Deploy to Azure Function App
         uses: azure/functions-action@v1
         with:
           app-name: diet-analysis-func-9368
-          package: ./api
+          package: ./
           publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
