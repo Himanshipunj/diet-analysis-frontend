@@ -16,6 +16,18 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
 
     logging.info("Diet data processor HTTP trigger function processed a request.")
 
+    # CORS headers for all responses
+    cors_headers = {
+        "Access-Control-Allow-Origin": "*",
+        "Access-Control-Allow-Methods": "GET, POST, OPTIONS",
+        "Access-Control-Allow-Headers": "Content-Type, Authorization",
+        "Access-Control-Max-Age": "86400",
+    }
+
+    # Handle preflight OPTIONS request
+    if req.method.upper() == "OPTIONS":
+        return func.HttpResponse("", status_code=204, headers=cors_headers)
+
     try:
         # Get operation from route
         operation = (req.route_params.get("operation") or "").lower()
@@ -26,6 +38,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 json.dumps({"status": "healthy", "message": "Function is running"}),
                 status_code=200,
                 mimetype="application/json",
+                headers=cors_headers,
             )
 
         # Initialize the processor
@@ -37,6 +50,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                 json.dumps({"error": "Failed to load data from blob storage"}),
                 status_code=500,
                 mimetype="application/json",
+                headers=cors_headers,
             )
 
         # Route to appropriate function based on operation
@@ -77,6 +91,7 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
                     json.dumps({"error": "Search term is required"}),
                     status_code=400,
                     mimetype="application/json",
+                    headers=cors_headers,
                 )
             result = processor.search_recipes(search_term, search_field)
 
@@ -99,7 +114,10 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             }
 
         return func.HttpResponse(
-            json.dumps(result, indent=2), status_code=200, mimetype="application/json"
+            json.dumps(result, indent=2),
+            status_code=200,
+            mimetype="application/json",
+            headers=cors_headers,
         )
 
     except Exception as e:
@@ -108,4 +126,5 @@ def main(req: func.HttpRequest) -> func.HttpResponse:
             json.dumps({"error": f"Internal server error: {str(e)}"}),
             status_code=500,
             mimetype="application/json",
+            headers=cors_headers,
         )
