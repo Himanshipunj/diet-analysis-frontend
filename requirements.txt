@@ -1,0 +1,7 @@
+azure-functions
+requests
+pandas
+numpy
+azure-storage-blob
+azure-identity
+azure-core
